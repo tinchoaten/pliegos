@@ -103,6 +103,7 @@ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82em;bac
 
 /* TEST */
 section.test{background:var(--ink);color:#fff;padding:2.8rem 0;margin-top:3rem;}
+section.test .exkick{font-family:var(--sans);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#7FB8C4;font-weight:700;margin-bottom:.8rem;}
 section.test h2{color:#fff;border-top:none;padding-top:0;margin-top:0;font-size:1.6rem;}
 section.test h2 .num{color:#7FB8C4;}
 section.test .intro{color:#B9C6CE;font-size:1rem;margin-bottom:1.6rem;}
@@ -319,27 +320,18 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
 
 <p class="pull">La variable no es el software. Es cómo se carga la información adentro.</p>
 
-</main>
+<h2><span class="num">06</span>Una prueba que cualquiera puede hacer mañana</h2>
 
-<section class="test" id="prueba">
-  <div class="wrap">
-    <h2><span class="num">06</span>La prueba de las diez preguntas</h2>
-    <p class="intro">Se aplica antes de publicar el procedimiento. La responde alguien que no participó en la redacción, usando únicamente los documentos que se van a publicar. Marcá una opción por pregunta y al final tenés el resultado.</p>
+<p>Existe una forma barata de saber en qué situación está un organismo. Antes de publicar un procedimiento, alguien que no participó en la redacción debe poder responder diez preguntas usando únicamente los documentos que se van a publicar: cuál es el objeto, cuándo vence el plazo, qué documentación es obligatoria, qué garantías se exigen, cuáles son los criterios de evaluación y con qué ponderación, qué modificaciones hubo, cuál es la versión vigente, dónde está la cláusula que respalda cada respuesta y qué quedó sin resolver en el texto.</p>
 
-    <div id="qs"></div>
+<p>Si alguna respuesta no aparece, cuesta demasiado encontrarla o admite dos lecturas razonables, el problema no es de quien respondió. Es del documento. Y conviene corregirlo antes de publicar, que es cuando corregirlo sale gratis.</p>
 
-    <div class="score">
-      <div class="big" id="sc">Sin responder todavía</div>
-      <p id="scmsg">Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.</p>
-      <div class="acts">
-        <button class="pri" onclick="copyResult()">Copiar el resultado</button>
-        <button onclick="resetTest()">Empezar de nuevo</button>
-      </div>
-    </div>
-  </div>
-</section>
+<p>El mismo ejercicio puede hacerse con una herramienta de inteligencia artificial, con una advertencia sobre cómo interpretarlo: el objetivo no es que la herramienta acierte. Es detectar en qué puntos el documento se presta a más de una lectura. La herramienta funciona ahí como un lector extremadamente rápido y extremadamente literal, que es exactamente el tipo de lector que conviene tener antes de publicar.</p>
 
-<main class="wrap">
+<p>Cuando aplicamos ese mismo ejercicio a los pliegos que relevamos para esta nota, varias respuestas estaban, pero costaba encontrarlas más de lo razonable, y más de una terminaba siendo una remisión y no un dato concreto. Ese es, en la práctica, el síntoma que hay que aprender a detectar.</p>
+
+<p><em>Al final de esta página está la prueba completa, para aplicarla si querés.</em></p>
+
 <h2><span class="num">07</span>El punto de fondo</h2>
 
 <p>La contratación pública argentina continúa atravesando la transición del papel al archivo electrónico, y buena parte de la transición del archivo al expediente digital. Durante esas dos etapas, digitalizar significó sobre todo cambiar de soporte: el mismo documento, en otro formato.</p>
@@ -354,6 +346,28 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
 
 <p>Los pliegos van a ser leídos cada vez más por sistemas automatizados. La decisión disponible para la Administración no es impedirlo, que sería inejecutable, ni confiar en ellos, que sería imprudente. Es producir documentos suficientemente buenos como para convivir con las dos clases de lectores: las personas que toman decisiones y las máquinas que las ayudan a encontrar la información.</p>
 </main>
+
+<section class="test" id="prueba">
+  <div class="wrap">
+    <div class="exkick">Ejercicio práctico &middot; opcional</div>
+    <h2>Aplicá la prueba a un pliego tuyo</h2>
+    <p class="intro">Hasta acá el planteo. Lo que sigue es para hacer, no para leer.</p>
+    <p class="intro">Abrí un pliego de tu jurisdicción que esté por publicarse o que se haya publicado hace poco, y respondé estas diez preguntas usando únicamente esos documentos. Sin preguntarle a quien lo redactó. Lleva unos quince minutos y no hace falta ninguna herramienta.</p>
+    <p class="intro">Y si te sale algo interesante, escribime el resultado. Estoy juntando lo que da esta prueba en distintas jurisdicciones para una segunda entrega con los datos agregados, en porcentajes y sin nombrar a ningún organismo. Cada resultado que llega mejora bastante lo que se puede decir con fundamento sobre esto.</p>
+
+    <div id="qs"></div>
+
+    <div class="score">
+      <div class="big" id="sc">Sin responder todavía</div>
+      <p id="scmsg">Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.</p>
+      <div class="acts">
+        <button class="pri" onclick="copyResult()">Copiar el resultado</button>
+        <button onclick="mailResult()">Enviármelo por mail</button>
+        <button onclick="resetTest()">Empezar de nuevo</button>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section class="cite">
   <div class="wrap">
@@ -457,6 +471,15 @@ function copyResult(){
   t+=`\nResultado: ${10-bad} de 10 limpias, ${bad} con corrección pendiente.\n`;
   t+="\nFuente: Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Zenodo. https://doi.org/10.5281/zenodo.21970374";
   cp(t,"Resultado copiado, listo para pegar en el expediente");
+}
+function mailResult(){
+  const n=Object.keys(ans).length;
+  if(n<10){ toast("Faltan respuestas"); return; }
+  let t="Procedimiento: ______  Jurisdiccion: ______\n\n";
+  QS.forEach((q,i)=>{ t+=`${i+1}. ${q[0]}: ${LBL[ans[i]]}\n`; });
+  const bad=Object.values(ans).filter(v=>v!=='ok').length;
+  t+=`\nResultado: ${10-bad} de 10 limpias, ${bad} con correccion pendiente.`;
+  location.href="mailto:juanmartinatencio@gmail.com?subject="+encodeURIComponent("Prueba de las diez preguntas")+"&body="+encodeURIComponent(t);
 }
 function copyCite(){
   cp("Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Calidad documental en la contratacion publica frente a los modelos generativos de lenguaje. Zenodo. https://doi.org/10.5281/zenodo.21970374","Cita copiada");
