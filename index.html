@@ -136,6 +136,15 @@ section.test .intro{color:#B9C6CE;font-size:1rem;margin-bottom:1.6rem;}
   background:transparent;color:#fff;
 }
 .score .acts button.pri{background:var(--accent-2);border-color:var(--accent-2);}
+.score .acts button:disabled{opacity:.6;cursor:default;}
+.sendfields{display:none;margin-top:1.1rem;gap:.5rem;flex-direction:column;}
+.sendfields input{
+  font-family:var(--sans);font-size:.86rem;color:#fff;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.22);border-radius:4px;padding:.55rem .7rem;width:100%;
+}
+.sendfields input::placeholder{color:#8FA1AC;}
+.sendfields input:focus{outline:none;border-color:#7FB8C4;}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
 
 /* cite + cta */
 section.cite{padding:2.6rem 0;border-top:1px solid var(--rule);}
@@ -264,6 +273,8 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
 
 <p>Seis medidas concentran buena parte del resultado. En cada caso, la distancia entre la formulación habitual y la que funciona no pide reescribir el pliego: pide decidir escribir distinto.</p>
 
+<p>Los ejemplos etiquetados como «Bien» y «Mal» que siguen son sugerencias prácticas de redacción, orientadas a mejorar la claridad y la trazabilidad del documento. No son reglas normativas ni la única forma correcta de escribir cada cláusula: muestran una dirección, no una fórmula obligatoria.</p>
+
 <div class="mtitle"><span class="i">1.</span> Remisiones que puedan seguirse</div>
 <p class="fld">Una persona apurada reconstruye la remisión ambigua; un sistema, directamente, adivina.</p>
 <div class="mb">
@@ -290,6 +301,7 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
   <div class="bien"><span class="tg">Bien</span><span>«La Circular n.º 2 modifica el artículo 6.1 del Pliego de Bases y Condiciones Particulares, versión 3. Sustituye el segundo párrafo. Versión vigente resultante: v.4».</span></div>
 </div>
 <p>En uno de los procedimientos relevados, dos circulares figuraban en la lista de documentos apenas como «Circular aclaratoria» y «Circular modificatoria», sin decir en ningún lado qué artículo tocaban. Para saber qué había cambiado, había que abrir las dos y compararlas a mano: el trabajo exacto que la identificación de versiones debería evitar.</p>
+<p>La contracara de identificar versiones es publicar, ante cada circular modificatoria o aclaratoria, un texto ordenado del pliego. Que exista siempre una única versión consolidada, que integre el texto base con todas las modificaciones vigentes, evita la práctica de dejar el pliego original y sus circulares como archivos sueltos que hay que reunir a mano, con el riesgo de que alguno se omita durante el análisis técnico o legal.</p>
 
 <div class="mtitle"><span class="i">4.</span> Formatos que se puedan leer</div>
 <p class="fld">Texto seleccionable y no imágenes escaneadas. Tablas como tablas y no como capturas de pantalla.</p>
@@ -310,7 +322,7 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
 <p class="fld">Que toda información consolidada (un cronograma, una ficha del procedimiento, un resumen de requisitos) remita a la cláusula que la respalda.</p>
 <div class="mb">
   <div class="mal"><span class="tg">Mal</span><span>«El plazo de presentación de ofertas vence el 15 de septiembre».</span></div>
-  <div class="bien"><span class="tg">Bien</span><span>«Presentación: 15/09/2026, 12:00 h [PBCP, art. 6.1, modificado por Circular 2]».</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>«Recepción de ofertas: habilitada hasta el 15/09/2026 a las 12:00 h [PBCP, art. 6.1, modificado por Circular 2]».</span></div>
 </div>
 <p>Esta es la medida que distingue una buena práctica documental de una exigencia nueva: si un dato no puede rastrearse hasta un documento, una versión y una cláusula determinados, no hay manera de saber si es correcto o fabricado.</p>
 
@@ -360,9 +372,14 @@ footer .who b{color:var(--ink);font-family:var(--sans);}
     <div class="score">
       <div class="big" id="sc">Sin responder todavía</div>
       <p id="scmsg">Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.</p>
+      <div class="sendfields" id="sendfields">
+        <input type="text" id="fJuris" placeholder="Jurisdicción u organismo (opcional)" maxlength="120">
+        <input type="text" id="fComent" placeholder="Algo para agregar (opcional)" maxlength="240">
+        <input type="text" id="fHP" class="hp" tabindex="-1" autocomplete="off">
+      </div>
       <div class="acts">
-        <button class="pri" onclick="copyResult()">Copiar el resultado</button>
-        <button onclick="mailResult()">Enviármelo por mail</button>
+        <button class="pri" id="sendBtn" onclick="sendResult()">Enviar resultado</button>
+        <button onclick="copyResult()">Copiar el resultado</button>
         <button onclick="resetTest()">Empezar de nuevo</button>
       </div>
     </div>
@@ -429,6 +446,8 @@ const QS=[
 ];
 const LBL={ok:"Aparece y es clara",mid:"Cuesta encontrarla",no:"No aparece o es ambigua"};
 let ans={};
+// Completar con la URL del Worker de Cloudflare una vez desplegado (ver GUIA-DESPLIEGUE.md)
+const WORKER_URL="https://REEMPLAZAR-CON-TU-WORKER.workers.dev";
 
 function render(){
   document.getElementById('qs').innerHTML=QS.map((q,i)=>`
@@ -455,8 +474,9 @@ function score(){
   const n=Object.keys(ans).length;
   const bad=Object.values(ans).filter(v=>v!=='ok').length;
   const el=document.getElementById('sc'), msg=document.getElementById('scmsg');
-  if(n<10){ el.textContent=`${n} de 10 respondidas`; msg.textContent="Seguí marcando. El resultado aparece cuando estén las diez."; return; }
+  if(n<10){ el.textContent=`${n} de 10 respondidas`; msg.textContent="Seguí marcando. El resultado aparece cuando estén las diez."; document.getElementById('sendfields').style.display='none'; return; }
   el.textContent=`${10-bad} de 10 limpias, ${bad} con problema`;
+  document.getElementById('sendfields').style.display='flex';
   if(bad===0) msg.textContent="El documento pasa la prueba. Vale la pena repetirla con alguien que no haya visto nunca este procedimiento.";
   else if(bad<=2) msg.textContent=`${bad} punto${bad>1?'s':''} para corregir antes de publicar. Son correcciones de redacción, no rediseño del pliego.`;
   else if(bad<=5) msg.textContent=`${bad} puntos con problema. Conviene revisar de dónde vienen: si salen del pliego tipo o del pliego general, la corrección se hace una vez y sirve para todos los procedimientos.`;
@@ -472,14 +492,31 @@ function copyResult(){
   t+="\nFuente: Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Zenodo. https://doi.org/10.5281/zenodo.21970374";
   cp(t,"Resultado copiado, listo para pegar en el expediente");
 }
-function mailResult(){
+async function sendResult(){
   const n=Object.keys(ans).length;
   if(n<10){ toast("Faltan respuestas"); return; }
-  let t="Procedimiento: ______  Jurisdiccion: ______\n\n";
-  QS.forEach((q,i)=>{ t+=`${i+1}. ${q[0]}: ${LBL[ans[i]]}\n`; });
+  const btn=document.getElementById('sendBtn');
+  if(btn.dataset.sent==='1'){ toast("Ya lo enviaste. ¡Gracias!"); return; }
   const bad=Object.values(ans).filter(v=>v!=='ok').length;
-  t+=`\nResultado: ${10-bad} de 10 limpias, ${bad} con correccion pendiente.`;
-  location.href="mailto:juanmartinatencio@gmail.com?subject="+encodeURIComponent("Prueba de las diez preguntas")+"&body="+encodeURIComponent(t);
+  const payload={
+    respuestas:QS.map((q,i)=>({item:q[0],valor:LBL[ans[i]]})),
+    limpias:10-bad,
+    con_problema:bad,
+    jurisdiccion:document.getElementById('fJuris').value||'',
+    comentario:document.getElementById('fComent').value||'',
+    hp:document.getElementById('fHP').value||'',
+    pagina:location.href
+  };
+  btn.disabled=true; const prevLbl=btn.textContent; btn.textContent="Enviando…";
+  try{
+    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error('bad status');
+    btn.dataset.sent='1'; btn.textContent="Enviado. ¡Gracias!";
+    toast("Resultado guardado. ¡Gracias por responder!");
+  }catch(e){
+    btn.disabled=false; btn.textContent=prevLbl;
+    toast("No se pudo enviar. Probá de nuevo en un momento.");
+  }
 }
 function copyCite(){
   cp("Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Calidad documental en la contratacion publica frente a los modelos generativos de lenguaje. Zenodo. https://doi.org/10.5281/zenodo.21970374","Cita copiada");
@@ -493,7 +530,11 @@ function fb(t,m){
   document.body.removeChild(a);
 }
 function resetTest(){ ans={}; paint(); document.getElementById('sc').textContent="Sin responder todavía";
-  document.getElementById('scmsg').textContent="Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis."; }
+  document.getElementById('scmsg').textContent="Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.";
+  document.getElementById('sendfields').style.display='none';
+  document.getElementById('fJuris').value=''; document.getElementById('fComent').value=''; document.getElementById('fHP').value='';
+  const btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent="Enviar resultado"; delete btn.dataset.sent;
+}
 let tt;
 function toast(m){ const e=document.getElementById('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('show'),2200); }
 addEventListener('scroll',()=>{
