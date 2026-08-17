@@ -441,25 +441,31 @@ const QS=[
  ["Ponderación","Cuánto pesa cada criterio en el resultado final."],
  ["Modificaciones","Qué circulares se emitieron y qué artículo modificó cada una."],
  ["Versión vigente","Cuál es el texto que rige hoy, identificado como tal."],
- ["Cláusula de respaldo","Dónde está, documento y artículo, lo que respalda cada respuesta anterior."],
- ["Lo que quedó sin resolver","Qué punto del texto admite dos lecturas razonables y todavía nadie decidió."]
+ ["Trazabilidad","¿Cada dato que respondiste tiene una referencia clara a qué artículo o sección del pliego pertenece?"],
+ ["Ambigüedad","¿Hay algún punto del pliego que pueda interpretarse de más de una forma razonable?"]
 ];
 const LBL={ok:"Aparece y es clara",mid:"Cuesta encontrarla",no:"No aparece o es ambigua"};
 let ans={};
-// Completar con la URL del Worker de Cloudflare una vez desplegado (ver GUIA-DESPLIEGUE.md)
-const WORKER_URL="https://REEMPLAZAR-CON-TU-WORKER.workers.dev";
+// URL del Worker de Cloudflare que guarda los resultados como Issues en GitHub
+const WORKER_URL="https://black-smoke-1918.juanmartinatencio.workers.dev";
 
 function render(){
-  document.getElementById('qs').innerHTML=QS.map((q,i)=>`
+  document.getElementById('qs').innerHTML=QS.map((q,i)=>{
+    const isQ10 = i === 9;
+    const btn1 = isQ10 ? "No, está claro" : "Aparece y es clara";
+    const btn2 = isQ10 ? "Sí, hay al menos uno" : "Cuesta encontrarla";
+    const btn3 = isQ10 ? "No puedo determinar" : "No aparece o es ambigua";
+    return `
    <div class="q">
      <div class="qh"><span class="qn">${i+1}</span><span class="qt">${q[0]}</span></div>
      <div class="qd">${q[1]}</div>
      <div class="opts">
-       <button data-v="ok" onclick="pick(${i},'ok')">Aparece y es clara</button>
-       <button data-v="mid" onclick="pick(${i},'mid')">Cuesta encontrarla</button>
-       <button data-v="no" onclick="pick(${i},'no')">No aparece o es ambigua</button>
+       <button data-v="ok" onclick="pick(${i},'ok')">${btn1}</button>
+       <button data-v="mid" onclick="pick(${i},'mid')">${btn2}</button>
+       <button data-v="no" onclick="pick(${i},'no')">${btn3}</button>
      </div>
-   </div>`).join('');
+   </div>`;
+  }).join('');
   paint();
 }
 function pick(i,v){ ans[i]=v; paint(); score(); }
