@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nadie leía los pliegos. Ahora los lee una máquina.</title>
+<meta name="description" content="Los proveedores empezaron a analizar los pliegos con inteligencia artificial. El problema ya no es si alguien los lee, sino si están escritos de manera que puedan leerse bien.">
+<meta name="author" content="Juan Martín Atencio">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nadie leía los pliegos. Ahora los lee una máquina.">
+<meta property="og:description" content="Los oferentes están analizando los pliegos con inteligencia artificial. Cuando el dato no está en el documento, la herramienta no avisa: lo completa. Seis medidas de redacción y una prueba de diez preguntas para aplicar antes de publicar.">
+<meta property="og:locale" content="es_AR">
+<meta name="twitter:card" content="summary_large_image">
+<style>
+:root{
+  --ink:#101B24;
+  --body:#2B3843;
+  --muted:#6C7A87;
+  --rule:#E1E7EC;
+  --paper:#FCFCFB;
+  --accent:#0D5566;
+  --accent-2:#0F6B80;
+  --accent-bg:#EAF2F4;
+  --mal:#A03325;
+  --mal-bg:#FBF1EF;
+  --bien:#1D6B4F;
+  --bien-bg:#EDF5F1;
+  --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --serif:Georgia,"Iowan Old Style","Times New Roman",serif;
+  --wrap:min(680px,100% - 2.6rem);
+}
+*{box-sizing:border-box;-webkit-text-size-adjust:100%;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;background:var(--paper);color:var(--body);
+  font-family:var(--serif);font-size:18px;line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{width:var(--wrap);margin-inline:auto;}
+
+/* progress */
+#bar{position:fixed;top:0;left:0;height:3px;background:var(--accent);width:0;z-index:60;transition:width .1s linear;}
+
+/* hero */
+header.hero{
+  background:var(--ink);color:#fff;padding:3.2rem 0 2.6rem;position:relative;overflow:hidden;
+}
+header.hero::after{content:"";position:absolute;inset:auto 0 0 0;height:4px;background:var(--accent-2);}
+.kick{
+  font-family:var(--sans);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+  color:#7FB8C4;font-weight:700;margin-bottom:1.5rem;
+}
+h1{
+  font-family:var(--sans);font-weight:800;letter-spacing:-.03em;line-height:1.08;
+  font-size:clamp(2rem,7.4vw,3.1rem);margin:0 0 1rem;color:#fff;
+}
+.dek{font-size:clamp(1.02rem,3.4vw,1.18rem);line-height:1.5;color:#B9C6CE;margin:0 0 1.9rem;font-style:italic;}
+.byline{font-family:var(--sans);font-size:.86rem;color:#8FA1AC;line-height:1.55;border-top:1px solid rgba(255,255,255,.14);padding-top:1.1rem;}
+.byline b{color:#fff;font-weight:700;font-size:.95rem;display:block;margin-bottom:.15rem;}
+
+/* article */
+main{padding:2.4rem 0 1rem;}
+main p{margin:0 0 1.15rem;}
+h2{
+  font-family:var(--sans);font-weight:800;letter-spacing:-.02em;color:var(--ink);
+  font-size:1.36rem;line-height:1.22;margin:2.8rem 0 .9rem;
+  padding-top:1.2rem;border-top:1px solid var(--rule);
+}
+h2 .num{color:var(--accent);font-size:.85rem;display:block;letter-spacing:.14em;margin-bottom:.35rem;}
+strong{color:var(--ink);font-weight:700;}
+.pull{
+  font-family:var(--sans);font-weight:700;font-size:clamp(1.12rem,4.2vw,1.32rem);
+  line-height:1.32;color:var(--accent);letter-spacing:-.015em;
+  border-left:4px solid var(--accent);padding-left:1.1rem;margin:1.9rem 0;
+}
+ul.plain{padding-left:1.2rem;margin:0 0 1.2rem;}
+ul.plain li{margin-bottom:.75rem;}
+ul.plain li::marker{color:var(--accent);}
+.note{
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:1.1rem 0;margin:1.8rem 0;font-size:.95rem;color:var(--muted);line-height:1.55;
+}
+.note .lbl{font-family:var(--sans);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700;display:block;margin-bottom:.55rem;}
+
+/* errors */
+.err{border-left:3px solid var(--rule);padding:.55rem 0 .55rem 1rem;margin-bottom:.85rem;font-size:.98rem;}
+.err.own{border-left-color:var(--accent);background:var(--accent-bg);padding-right:.9rem;border-radius:0 4px 4px 0;}
+.err b{font-family:var(--sans);font-size:.87rem;display:block;color:var(--ink);margin-bottom:.2rem;}
+.err.own b{color:var(--accent);}
+
+/* mal / bien */
+.mb{margin:1rem 0 1.7rem;}
+.mb div{padding:.7rem .95rem;font-size:.94rem;line-height:1.45;display:flex;gap:.75rem;align-items:flex-start;}
+.mb .mal{background:var(--mal-bg);border-left:3px solid var(--mal);}
+.mb .bien{background:var(--bien-bg);border-left:3px solid var(--bien);margin-top:3px;}
+.mb .tg{font-family:var(--sans);font-size:.6rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;flex:0 0 2.4rem;padding-top:.22rem;}
+.mb .mal .tg{color:var(--mal);}
+.mb .bien .tg{color:var(--bien);}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.82em;background:rgba(0,0,0,.05);padding:.1em .3em;border-radius:3px;word-break:break-all;}
+.mtitle{font-family:var(--sans);font-weight:700;font-size:1.02rem;color:var(--ink);margin:1.9rem 0 .3rem;}
+.mtitle .i{color:var(--accent);}
+.fld{font-size:.95rem;color:var(--muted);font-style:italic;margin:0 0 .3rem;}
+
+/* TEST */
+section.test{background:var(--ink);color:#fff;padding:2.8rem 0;margin-top:3rem;}
+section.test .exkick{font-family:var(--sans);font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;color:#7FB8C4;font-weight:700;margin-bottom:.8rem;}
+section.test h2{color:#fff;border-top:none;padding-top:0;margin-top:0;font-size:1.6rem;}
+section.test h2 .num{color:#7FB8C4;}
+section.test .intro{color:#B9C6CE;font-size:1rem;margin-bottom:1.6rem;}
+.q{border-top:1px solid rgba(255,255,255,.13);padding:.9rem 0;}
+.q:last-of-type{border-bottom:1px solid rgba(255,255,255,.13);}
+.q .qh{display:flex;gap:.7rem;align-items:baseline;}
+.q .qn{font-family:var(--sans);font-weight:800;color:#7FB8C4;font-size:.9rem;flex:0 0 1.3rem;}
+.q .qt{font-family:var(--sans);font-weight:700;color:#fff;font-size:1rem;}
+.q .qd{color:#93A6B1;font-size:.9rem;margin:.2rem 0 .7rem 2rem;line-height:1.45;}
+.opts{display:flex;gap:.4rem;margin-left:2rem;flex-wrap:wrap;}
+.opts button{
+  font-family:var(--sans);font-size:.76rem;font-weight:600;
+  background:transparent;color:#B9C6CE;border:1px solid rgba(255,255,255,.22);
+  padding:.4rem .7rem;border-radius:100px;cursor:pointer;transition:all .12s;
+}
+.opts button:hover{border-color:#7FB8C4;color:#fff;}
+.opts button.on[data-v="ok"]{background:#1D6B4F;border-color:#1D6B4F;color:#fff;}
+.opts button.on[data-v="mid"]{background:#B07A1E;border-color:#B07A1E;color:#fff;}
+.opts button.on[data-v="no"]{background:#A03325;border-color:#A03325;color:#fff;}
+.score{
+  margin-top:1.6rem;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  border-radius:6px;padding:1.2rem 1.1rem;
+}
+.score .big{font-family:var(--sans);font-size:1.5rem;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.score p{color:#B9C6CE;font-size:.93rem;margin:.5rem 0 0;line-height:1.5;}
+.score .acts{display:flex;gap:.5rem;margin-top:1rem;flex-wrap:wrap;}
+.score .acts button{
+  font-family:var(--sans);font-size:.82rem;font-weight:600;cursor:pointer;
+  padding:.55rem .95rem;border-radius:4px;border:1px solid rgba(255,255,255,.25);
+  background:transparent;color:#fff;
+}
+.score .acts button.pri{background:var(--accent-2);border-color:var(--accent-2);}
+.score .acts button:disabled{opacity:.6;cursor:default;}
+.sendfields{display:none;margin-top:1.1rem;gap:.5rem;flex-direction:column;}
+.sendfields input{
+  font-family:var(--sans);font-size:.86rem;color:#fff;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.22);border-radius:4px;padding:.55rem .7rem;width:100%;
+}
+.sendfields input::placeholder{color:#8FA1AC;}
+.sendfields input:focus{outline:none;border-color:#7FB8C4;}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+/* cite + cta */
+section.cite{padding:2.6rem 0;border-top:1px solid var(--rule);}
+h3{font-family:var(--sans);font-size:1.05rem;font-weight:800;color:var(--ink);margin:0 0 .6rem;}
+.citebox{
+  background:var(--accent-bg);border-left:4px solid var(--accent);padding:1rem 1.1rem;
+  font-size:.92rem;line-height:1.5;border-radius:0 4px 4px 0;
+}
+.citebox .doi{font-family:ui-monospace,monospace;font-size:.85rem;color:var(--accent);word-break:break-all;display:block;margin-top:.5rem;}
+.btns{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem;}
+.btn{
+  font-family:var(--sans);font-size:.88rem;font-weight:700;text-decoration:none;cursor:pointer;
+  padding:.75rem 1.2rem;border-radius:4px;border:1.5px solid var(--accent);color:var(--accent);
+  background:transparent;display:inline-block;transition:all .12s;
+}
+.btn:hover{background:var(--accent-bg);}
+.btn.pri{background:var(--accent);color:#fff;}
+.btn.pri:hover{background:var(--accent-2);}
+
+section.cta{background:var(--accent-bg);border-top:1px solid var(--rule);padding:2.6rem 0;}
+section.cta h3{font-size:1.3rem;letter-spacing:-.02em;}
+section.cta p{font-size:1rem;margin:0 0 .9rem;}
+
+/* refs / footer */
+footer{padding:2.6rem 0 3.5rem;border-top:1px solid var(--rule);font-size:.88rem;color:var(--muted);line-height:1.55;}
+footer h3{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem;}
+footer .ref{padding-left:1.4rem;text-indent:-1.4rem;margin-bottom:.7rem;word-break:break-word;}
+footer a{color:var(--accent);}
+footer .who{margin-top:2rem;padding-top:1.3rem;border-top:2px solid var(--accent);color:var(--body);}
+footer .who b{color:var(--ink);font-family:var(--sans);}
+.toast{
+  position:fixed;bottom:1.2rem;left:50%;transform:translateX(-50%) translateY(140%);
+  background:var(--ink);color:#fff;font-family:var(--sans);font-size:.85rem;
+  padding:.7rem 1.2rem;border-radius:100px;z-index:80;transition:transform .25s;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+@media print{#bar,.opts,.score .acts,.toast{display:none;}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kick">Contratación pública &middot; Calidad documental &middot; IA</div>
+    <h1>Nadie leía los pliegos. Ahora los lee una máquina.</h1>
+    <p class="dek">Los proveedores empezaron a analizar la documentación de las licitaciones con inteligencia artificial. El problema ya no es si alguien lee los pliegos, sino si los pliegos están escritos de manera que puedan leerse bien.</p>
+    <div class="byline">
+      <b>Juan Martín Atencio</b>
+      Abogado. Magíster en Transformación Digital del Sector Público. Especialista en contrataciones públicas y gobierno digital. Agosto de 2026. Lectura: 7 minutos.
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<p>Existe una frase que circula desde hace décadas entre quienes trabajan en compras públicas, y que funciona menos como diagnóstico que como confesión: nadie lee los pliegos completos.</p>
+
+<p>No debe tomarse al pie de la letra. Los equipos jurídicos y técnicos de las empresas estudian con detenimiento las condiciones que los afectan, y los organismos conocen los documentos que producen. Lo que la frase describe es otra cosa: la distancia entre el volumen de información que genera un procedimiento y el tiempo profesional disponible para procesarla.</p>
+
+<p>Un conjunto documental puede superar las doscientas páginas. Pliego de bases y condiciones particulares, especificaciones técnicas, anexos, planillas de cotización, modelos de declaración jurada, circulares aclaratorias, respuestas a consultas. Frente a eso, cualquiera hace lo razonable: lee el objeto, los requisitos de admisibilidad, las condiciones económicas, los criterios de evaluación y lo que afecta directamente a su propuesta. El resto se recorre por encima, o se busca con el buscador del lector de PDF.</p>
+
+<p>Esa economía de la atención descansaba sobre un supuesto tan obvio que nunca hizo falta enunciarlo: <strong>el lector del pliego es una persona, y su capacidad de lectura es limitada.</strong></p>
+
+<p>Ese supuesto empieza a resquebrajarse, y todo indica que lo hará cada vez más rápido.</p>
+
+<h2><span class="num">01</span>Lo que está pasando ahora</h2>
+
+<p>Un proveedor puede cargar hoy el conjunto documental completo en una herramienta de inteligencia artificial y pedirle desde tareas sencillas hasta análisis avanzados. Mientras que algunas empresas aplican técnicas complejas de lectura para estructurar matrices o señalar contradicciones, muchas PyMEs la utilizan a un nivel básico o intermedio para resumir o extraer requisitos clave. Aun sin ser expertos en su uso, esta interacción transforma de manera sustancial la forma en que procesan la documentación.</p>
+
+<p>La operación demanda minutos. No requiere demasiados conocimientos técnicos ni presupuesto: las herramientas de uso corriente lo hacen.</p>
+
+<p>Y lo hace sin pedir permiso, sin declararlo en ninguna parte y sin que el organismo contratante se entere.</p>
+
+<p>De allí surge una situación que merece atención. Es posible que los pliegos empiecen a ser leídos de manera mucho más exhaustiva justamente cuando dejan de ser las personas quienes hacen esa primera lectura.</p>
+
+<p class="pull">La pregunta cambia de lugar: deja de ser si los proveedores leen los documentos y pasa a ser si los documentos que publica la Administración están armados de manera que puedan leerse bien, tanto por una persona como por un sistema automatizado.</p>
+
+<h2><span class="num">02</span>El detalle que cambia todo</h2>
+
+<p>Acá aparece una particularidad que conviene comprender antes de seguir, porque de ella depende el resto del argumento.</p>
+
+<p>Un buscador, cuando no encuentra algo, no encuentra nada. Devuelve cero resultados y el usuario advierte de inmediato que la información no está.</p>
+
+<p>Un sistema de IA generativo, por default, funciona distinto. No busca una respuesta preexistente: la redacta. Y cuando la información que necesita no está en el documento, o está en un lugar donde no la reconoce, no avisa: la completa. Produce una respuesta plausible, bien escrita y equivocada, con la misma seguridad expresiva que si la hubiera encontrado.</p>
+
+<p>Existe evidencia sobre este fenómeno en la IA generativa. Un estudio publicado en el <em>Journal of Legal Analysis</em>, realizado por investigadores de Yale y Stanford, midió el comportamiento de varios grandes modelos de lenguaje frente a consultas jurídicas verificables y documentó tasas de error elevadas, agravadas por un rasgo incómodo: estos sistemas muestran escasa capacidad para reconocer cuándo se equivocan (Dahl et al., 2024). La advertencia genérica de «verificá siempre la información» sirve poco cuando la herramienta no puede señalar dónde hay que verificar.</p>
+
+<div class="note">
+  <span class="lbl">Precisión sobre el alcance de esa evidencia</span>
+  Ese estudio midió consultas sobre jurisprudencia estadounidense, no sobre pliegos argentinos con los documentos adjuntos. La situación no es idéntica y la magnitud del error en nuestro escenario todavía nadie la midió. Pero el mecanismo es el mismo, y cualquiera que haya trabajado con estas herramientas sobre documentación compleja reconoce la fenomenología: atribuyen al pliego un requisito que no existe, omiten una condición real, confunden el pliego general con el particular, trabajan sobre una versión desactualizada o citan una cláusula inventada.
+</div>
+
+<h2><span class="num">03</span>Por qué esto es un problema de la Administración</h2>
+
+<p>La reacción intuitiva sería decir que el problema es del proveedor: usó una herramienta, se equivocó, se hace cargo. Y en términos de responsabilidad jurídica, esa reacción es correcta.</p>
+
+<p>Pero hay una distinción que conviene hacer, porque separa lo que el organismo puede controlar de lo que no. Cuando una respuesta automatizada sale mal, el error puede tener cuatro orígenes distintos.</p>
+
+<div class="err"><b>Error del sistema</b>La información estaba disponible y la herramienta igual respondió mal.</div>
+<div class="err own"><b>Error de contexto &rarr; responsabilidad del organismo</b>La información nunca llegó al sistema: el proveedor cargó el pliego pero no encontró la circular modificatoria, publicada en otra solapa del portal.</div>
+<div class="err own"><b>Error del documento &rarr; responsabilidad del organismo</b>La documentación es contradictoria, ambigua o está desactualizada. Acá ninguna herramienta puede hacer nada: la respuesta equivocada es, en rigor, fiel al documento.</div>
+<div class="err"><b>Error humano</b>El usuario interpretó mal una respuesta correcta, o decidió sin ir a la fuente.</div>
+
+<p style="margin-top:1.4rem">Los dos del medio son responsabilidad directa del organismo contratante. Y son, con diferencia, los que más se subestiman.</p>
+
+<p>Vale la pena detenerse en el tercero. Cuando varios oferentes formulan la misma consulta sobre una misma cláusula, la explicación más económica no es que todos hayan usado mal sus herramientas. Es que la cláusula es efectivamente ambigua. La documentación estatal viene produciendo errores de interpretación desde mucho antes de que existiera la inteligencia artificial; lo que cambió es que ahora esos errores se producen más rápido, a mayor escala y con apariencia de certeza.</p>
+
+<p>Esto no es un ejercicio hipotético. Para escribir este artículo revisamos pliegos vigentes en cuatro portales de compras públicas distintos, uno de ellos usado por tres jurisdicciones de nivel distinto sobre la misma plataforma. En tres de los cuatro casos, el campo pensado para indicar el requisito técnico obligatorio no tenía el requisito: tenía una remisión genérica («según pliego de condiciones particulares») o la cita de un artículo sin transcribir su contenido. El campo existe. Tiene su columna en la tabla, su lugar en el formulario. Lo que falta es lo que había que escribir adentro.</p>
+
+<p>Hay además un motivo de conveniencia institucional, que suele pasarse por alto. A un organismo no le sirve que una oferta se caiga por un defecto formal evitable. Un procedimiento con muchas ofertas válidas da mejores resultados que uno con pocas o con propuestas descartadas por malentendidos. La claridad documental no es una gentileza hacia el mercado: es un instrumento de eficiencia administrativa.</p>
+
+<h2><span class="num">04</span>Lo que esto no significa</h2>
+
+<p>Tres aclaraciones necesarias, porque la propuesta se malinterpreta con facilidad.</p>
+
+<ul class="plain">
+  <li><strong>No convierte a ninguna herramienta en intérprete del pliego.</strong> El documento oficial publicado por el organismo sigue siendo la única fuente que obliga. Si una herramienta responde que hay que presentar determinado certificado y el pliego no lo exige, la respuesta es simplemente incorrecta, y nada se sigue de ella.</li>
+  <li><strong>No traslada responsabilidad al organismo.</strong> El oferente responde por su oferta, incluida la obligación de haber verificado contra la fuente oficial cualquier información obtenida por vía derivada.</li>
+  <li><strong>No exige que el Estado compre tecnología.</strong> Esto es lo que más sorprende cuando se explica. Casi todo lo que hace falta son decisiones de redacción y de publicación.</li>
+</ul>
+
+<h2><span class="num">05</span>Qué hacer, concretamente</h2>
+
+<p>Lo que vuelve a un pliego procesable por una máquina es, en un porcentaje muy alto, lo mismo que lo vuelve claro para una persona. No hay que elegir entre las dos cosas.</p>
+
+<p>Seis medidas concentran buena parte del resultado. En cada caso, la distancia entre la formulación habitual y la que funciona no pide reescribir el pliego: pide decidir escribir distinto.</p>
+
+<p>Los ejemplos etiquetados como «Bien» y «Mal» que siguen son sugerencias prácticas de redacción, orientadas a mejorar la claridad y la trazabilidad del documento. No son reglas normativas ni la única forma correcta de escribir cada cláusula: muestran una dirección, no una fórmula obligatoria.</p>
+
+<div class="mtitle"><span class="i">1.</span> Remisiones que puedan seguirse</div>
+<p class="fld">Una persona apurada reconstruye la remisión ambigua; un sistema, directamente, adivina.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>«según lo establecido precedentemente».</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>«conforme al artículo 8.2 del Pliego de Bases y Condiciones Particulares».</span></div>
+</div>
+
+<div class="mtitle"><span class="i">2.</span> Títulos que declaren su función</div>
+<p class="fld">«Requisitos» obliga a deducir de cuáles se trata. La corrección lleva diez segundos.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>«Requisitos».</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>«Requisitos obligatorios de admisibilidad de la oferta».</span></div>
+</div>
+<p class="fld">El mismo criterio se aplica al nombre de los archivos publicados en el portal.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span><code>anexo2_final_v3_corregido.pdf</code></span></div>
+  <div class="bien"><span class="tg">Bien</span><span><code>LP-2026-00124_Anexo-II_Especificaciones-Tecnicas_v3.pdf</code></span></div>
+</div>
+
+<div class="mtitle"><span class="i">3.</span> Versiones identificadas</div>
+<p class="fld">Que cada documento indique número de versión y fecha en el propio archivo, y que cada circular diga expresamente qué cláusula modifica y cuál es la versión que queda vigente.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>«Se modifica el pliego en los términos que se indican a continuación» (seguido de un texto nuevo, sin precisar qué artículo reemplaza).</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>«La Circular n.º 2 modifica el artículo 6.1 del Pliego de Bases y Condiciones Particulares, versión 3. Sustituye el segundo párrafo. Versión vigente resultante: v.4».</span></div>
+</div>
+<p>En uno de los procedimientos relevados, dos circulares figuraban en la lista de documentos apenas como «Circular aclaratoria» y «Circular modificatoria», sin decir en ningún lado qué artículo tocaban. Para saber qué había cambiado, había que abrir las dos y compararlas a mano: el trabajo exacto que la identificación de versiones debería evitar.</p>
+<p>La contracara de identificar versiones es publicar, ante cada circular modificatoria o aclaratoria, un texto ordenado del pliego. Que exista siempre una única versión consolidada, que integre el texto base con todas las modificaciones vigentes, evita la práctica de dejar el pliego original y sus circulares como archivos sueltos que hay que reunir a mano, con el riesgo de que alguno se omita durante el análisis técnico o legal.</p>
+
+<div class="mtitle"><span class="i">4.</span> Formatos que se puedan leer</div>
+<p class="fld">Texto seleccionable y no imágenes escaneadas. Tablas como tablas y no como capturas de pantalla.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>la tabla de requisitos publicada como una imagen escaneada del pliego original.</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>la misma tabla publicada como texto o como tabla nativa del documento, con cada celda seleccionable.</span></div>
+</div>
+<p>A veces el problema es más chico y más tonto: en uno de los portales consultados, la tilde de la í se había roto en todo el texto de las garantías («garant?a», «art?culo»). Una persona lo lee sin pensarlo. Un sistema que busca la palabra exacta no la reconoce.</p>
+
+<div class="mtitle"><span class="i">5.</span> Documentos con dirección propia</div>
+<p class="fld">Que cada anexo, cada circular, cada acto administrativo tenga un enlace que se pueda copiar, guardar y volver a abrir sin repetir los mismos clics.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>un anexo al que solo se llega abriendo una sesión activa y siguiendo una cadena de clics dentro del portal.</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>un enlace único y persistente al documento, que funciona igual hoy que dentro de tres años.</span></div>
+</div>
+
+<div class="mtitle"><span class="i">6.</span> Trazabilidad</div>
+<p class="fld">Que toda información consolidada (un cronograma, una ficha del procedimiento, un resumen de requisitos) remita a la cláusula que la respalda.</p>
+<div class="mb">
+  <div class="mal"><span class="tg">Mal</span><span>«El plazo de presentación de ofertas vence el 15 de septiembre».</span></div>
+  <div class="bien"><span class="tg">Bien</span><span>«Recepción de ofertas: habilitada hasta el 15/09/2026 a las 12:00 h [PBCP, art. 6.1, modificado por Circular 2]».</span></div>
+</div>
+<p>Esta es la medida que distingue una buena práctica documental de una exigencia nueva: si un dato no puede rastrearse hasta un documento, una versión y una cláusula determinados, no hay manera de saber si es correcto o fabricado.</p>
+
+<p>Un detalle sobre dónde aplicar el esfuerzo, porque suele ser el obstáculo real: nadie tiene tiempo de rediseñar pliego por pliego, y no hace falta. Buena parte del contenido de un pliego particular viene del pliego único de condiciones generales, de los pliegos tipo aprobados y de cláusulas que cada área reutiliza. Corregir una remisión defectuosa en un modelo que se aplica a doscientos procedimientos por año rinde más que revisar doscientos pliegos de a uno.</p>
+
+<p>Los cuatro portales revisados no se nombran a propósito. Lo que importa es el patrón, no señalar a un organismo en particular. Y el patrón se repitió con independencia de la plataforma: apareció en el sistema usado a nivel nacional y en dos provincias, y también, con otra forma, en un portal de arquitectura completamente distinta.</p>
+
+<p class="pull">La variable no es el software. Es cómo se carga la información adentro.</p>
+
+<h2><span class="num">06</span>Una prueba que cualquiera puede hacer mañana</h2>
+
+<p>Existe una forma barata de saber en qué situación está un organismo. Antes de publicar un procedimiento, alguien que no participó en la redacción debe poder responder diez preguntas usando únicamente los documentos que se van a publicar: cuál es el objeto, cuándo vence el plazo, qué documentación es obligatoria, qué garantías se exigen, cuáles son los criterios de evaluación y con qué ponderación, qué modificaciones hubo, cuál es la versión vigente, dónde está la cláusula que respalda cada respuesta y qué quedó sin resolver en el texto.</p>
+
+<p>Si alguna respuesta no aparece, cuesta demasiado encontrarla o admite dos lecturas razonables, el problema no es de quien respondió. Es del documento. Y conviene corregirlo antes de publicar, que es cuando corregirlo sale gratis.</p>
+
+<p>El mismo ejercicio puede hacerse con una herramienta de inteligencia artificial, con una advertencia sobre cómo interpretarlo: el objetivo no es que la herramienta acierte. Es detectar en qué puntos el documento se presta a más de una lectura. La herramienta funciona ahí como un lector extremadamente rápido y extremadamente literal, que es exactamente el tipo de lector que conviene tener antes de publicar.</p>
+
+<p>Cuando aplicamos ese mismo ejercicio a los pliegos que relevamos para esta nota, varias respuestas estaban, pero costaba encontrarlas más de lo razonable, y más de una terminaba siendo una remisión y no un dato concreto. Ese es, en la práctica, el síntoma que hay que aprender a detectar.</p>
+
+<p><em>Al final de esta página está la prueba completa, para aplicarla si querés.</em></p>
+
+<h2><span class="num">07</span>El punto de fondo</h2>
+
+<p>La contratación pública argentina continúa atravesando la transición del papel al archivo electrónico, y buena parte de la transición del archivo al expediente digital. Durante esas dos etapas, digitalizar significó sobre todo cambiar de soporte: el mismo documento, en otro formato.</p>
+
+<p>Lo que se plantea ahora es distinto. <strong>No se trata de cambiar el soporte sino de que la información sea efectivamente inteligible: que pueda encontrarse, comprenderse, procesarse, verificarse y relacionarse con los demás documentos del procedimiento, con la fuente oficial identificada en todo momento.</strong></p>
+
+<p>Organismos internacionales vienen trabajando esta idea desde antes de la irrupción de la inteligencia artificial generativa. Un informe de la OCDE sobre normas escritas para humanos y para máquinas distingue entre un documento que una computadora puede procesar sin pérdida de significado y uno meramente digital, y advierte que un archivo publicado en internet no garantiza lo primero (Mohun y Roberts, 2020). En contrataciones, el Estándar de Datos para las Contrataciones Abiertas avanzó en estructurar la información del procedimiento, con implementaciones en la región (Open Contracting Partnership, s.f.). Lo que falta cubrir es el interior del documento, que es donde están las reglas que obligan.</p>
+
+<p>Es esperable que a alguien se le ocurra objetar que esta lista tiene fecha de vencimiento: si los modelos van a entender cada vez mejor el contexto, ¿para qué corregir remisiones o versionar circulares? La objeción mezcla dos problemas distintos. Uno es la capacidad del modelo para interpretar un texto ambiguo, y ese, con el tiempo, probablemente mejore. El otro es que la información esté efectivamente escrita en el documento, y eso no lo resuelve ningún modelo, sin importar cuán avanzado sea. Si una circular no dice qué artículo modifica, ningún nivel de comprensión adicional puede inventar ese dato: no es una limitación de lectura, es que el dato no existe en ningún lugar del texto. Hay, además, un motivo para pensar que un modelo más capaz agrava el riesgo central de este artículo en lugar de reducirlo: cuanto más fluida y segura suena una respuesta, más difícil resulta notar cuándo completó un vacío en vez de encontrar un dato real.</p>
+
+<p>Hay otro motivo para no apostar todo a que la próxima versión del modelo resuelva esto, y no depende en nada de la inteligencia artificial: el pliego tiene un lector que ninguna mejora de los modelos va a hacer desaparecer, que es el órgano de control. Cuando el Tribunal de Cuentas, la sindicatura o la auditoría interna revisan un procedimiento, lo hacen meses o años después de la adjudicación, sin haber estado en la mesa donde se tomaron las decisiones y sin más respaldo que el expediente. Si reconstruir qué circular modificó qué artículo depende de la memoria de alguien o de abrir y comparar documentos a mano, la auditoría deja de ser una lectura y se convierte en una reconstrucción. Un documento cuya claridad depende de la inteligencia de quien lo lee, humano o artificial, es, en sentido estricto, un documento mal escrito. Escribir pliegos trazables no es una apuesta a las limitaciones de la inteligencia artificial de hoy. Es simplemente, escribir bien.</p>
+
+<p>Los pliegos van a ser leídos cada vez más por sistemas automatizados. La decisión disponible para la Administración no es impedirlo, que sería inejecutable, ni confiar en ellos, que sería imprudente. Es producir documentos suficientemente buenos como para convivir con las dos clases de lectores: las personas que toman decisiones y las máquinas que las ayudan a encontrar la información.</p>
+</main>
+
+<section class="test" id="prueba">
+  <div class="wrap">
+    <div class="exkick">Ejercicio práctico &middot; opcional</div>
+    <h2>Aplicá la prueba a un pliego tuyo</h2>
+    <p class="intro">Hasta acá el planteo. Lo que sigue es para hacer, no para leer.</p>
+    <p class="intro">Abrí un pliego de tu jurisdicción que esté por publicarse o que se haya publicado hace poco, y respondé estas diez preguntas usando únicamente esos documentos. Sin preguntarle a quien lo redactó. Lleva unos quince minutos y no hace falta ninguna herramienta.</p>
+    <p class="intro">Y si te sale algo interesante, escribime el resultado. Estoy juntando lo que da esta prueba en distintas jurisdicciones para una segunda entrega con los datos agregados, en porcentajes y sin nombrar a ningún organismo. Cada resultado que llega mejora bastante lo que se puede decir con fundamento sobre esto.</p>
+
+    <div id="qs"></div>
+
+    <div class="score">
+      <div class="big" id="sc">Sin responder todavía</div>
+      <p id="scmsg">Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.</p>
+      <div class="sendfields" id="sendfields">
+        <input type="text" id="fJuris" placeholder="Jurisdicción u organismo (opcional)" maxlength="120">
+        <input type="text" id="fComent" placeholder="Algo para agregar (opcional)" maxlength="240">
+        <input type="text" id="fHP" class="hp" tabindex="-1" autocomplete="off">
+      </div>
+      <div class="acts">
+        <button class="pri" id="sendBtn" onclick="sendResult()">Enviar resultado</button>
+        <button onclick="copyResult()">Copiar el resultado</button>
+        <button onclick="resetTest()">Empezar de nuevo</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cite">
+  <div class="wrap">
+    <h3>Cómo citar este trabajo</h3>
+    <div class="citebox">
+      Atencio, J. M. (2026). <em>Nadie leía los pliegos. Ahora los lee una máquina. Calidad documental en la contratación pública frente a los modelos generativos de lenguaje</em>. Zenodo.
+      <span class="doi">https://doi.org/10.5281/zenodo.21970374</span>
+    </div>
+    <div class="btns">
+      <button class="btn pri" onclick="copyCite()">Copiar la cita</button>
+      <a class="btn" href="https://doi.org/10.5281/zenodo.21970374">Descargar el PDF con DOI</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap">
+    <h3>Si corrés la prueba, contame qué te dio</h3>
+    <p>La prueba de las diez preguntas se aplica sola, sin ayuda de nadie y sin gastar un peso. Lo que me interesa saber es qué pasa cuando la corren sobre un pliego real: cuántos puntos quedan limpios, cuáles fallan siempre y si el patrón se repite entre jurisdicciones.</p>
+    <p>Si la aplicás en tu organismo, escribime el resultado aunque sea en dos líneas. Con eso pienso armar una segunda entrega con los datos agregados, sin nombres y en porcentajes.</p>
+    <p>Y si te interesa el trabajo largo, con el estándar completo, los ejemplos de reescritura de cláusulas y la hoja de ruta por etapas, pedímelo y te lo mando.</p>
+    <div class="btns">
+      <a class="btn pri" href="mailto:juanmartinatencio@gmail.com?subject=Prueba%20de%20las%20diez%20preguntas">Escribirme el resultado</a>
+      <a class="btn" href="mailto:juanmartinatencio@gmail.com?subject=Trabajo%20extenso%20sobre%20calidad%20documental">Pedir el trabajo largo</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Referencias</h3>
+    <div class="ref">Dahl, M., Magesh, V., Suzgun, M., &amp; Ho, D. E. (2024). Large legal fictions: Profiling legal hallucinations in large language models. <em>Journal of Legal Analysis, 16</em>(1), 64-93. <a href="https://doi.org/10.1093/jla/laae003">https://doi.org/10.1093/jla/laae003</a></div>
+    <div class="ref">Mohun, J., &amp; Roberts, A. (2020). <em>Cracking the code: Rulemaking for humans and machines</em> (OECD Working Papers on Public Governance n.º 42). OECD Publishing. <a href="https://doi.org/10.1787/3afe6ba5-en">https://doi.org/10.1787/3afe6ba5-en</a></div>
+    <div class="ref">Open Contracting Partnership. (s.f.). <em>Estándar de Datos para las Contrataciones Abiertas (OCDS), versión 1.1</em>. <a href="https://standard.open-contracting.org/latest/es/">https://standard.open-contracting.org/latest/es/</a></div>
+
+    <div class="who">
+      <p>Este texto resume el planteo de un trabajo más extenso sobre calidad documental en la contratación pública frente a los modelos generativos de lenguaje, que incluye un estándar mínimo de diez elementos, ejemplos de reescritura de cláusulas, un modelo de gobernanza y una hoja de ruta de implementación por etapas. Si te interesa leerlo, escribime.</p>
+      <p>El relevamiento de portales es exploratorio y no pretende validez estadística. Se realizó sobre cuatro portales de compras públicas argentinos, cuya identidad no se consigna deliberadamente, con el objeto de ilustrar un patrón y no de evaluar organismos determinados.</p>
+      <p><b>Juan Martín Atencio</b> &middot; <a href="mailto:juanmartinatencio@gmail.com">juanmartinatencio@gmail.com</a><br>
+      Licencia CC BY 4.0. Se puede copiar, repartir dentro de un organismo y adaptar, citando la fuente.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const QS=[
+ ["Objeto","Qué se contrata, en términos que no requieran abrir otro documento."],
+ ["Plazo","Cuándo vence la presentación de ofertas, con fecha y hora."],
+ ["Documentación obligatoria","Qué hay que presentar sí o sí para que la oferta sea admisible."],
+ ["Garantías","Cuáles se exigen, por qué monto y en qué formas se admiten."],
+ ["Criterios de evaluación","Con qué se compara una oferta contra otra."],
+ ["Ponderación","Cuánto pesa cada criterio en el resultado final."],
+ ["Modificaciones","Qué circulares se emitieron y qué artículo modificó cada una."],
+ ["Versión vigente","Cuál es el texto que rige hoy, identificado como tal."],
+ ["Trazabilidad","¿Cada dato que respondiste tiene una referencia clara a qué artículo o sección del pliego pertenece?"],
+ ["Ambigüedad","¿Hay algún punto del pliego que pueda interpretarse de más de una forma razonable?"]
+];
+const LBL={ok:"Aparece y es clara",mid:"Cuesta encontrarla",no:"No aparece o es ambigua"};
+let ans={};
+// URL del Worker de Cloudflare que guarda los resultados como Issues en GitHub
+const WORKER_URL="https://black-smoke-1918.juanmartinatencio.workers.dev";
+
+function render(){
+  document.getElementById('qs').innerHTML=QS.map((q,i)=>{
+    const isQ10 = i === 9;
+    const btn1 = isQ10 ? "No, está claro" : "Aparece y es clara";
+    const btn2 = isQ10 ? "Sí, hay al menos uno" : "Cuesta encontrarla";
+    const btn3 = isQ10 ? "No puedo determinar" : "No aparece o es ambigua";
+    return `
+   <div class="q">
+     <div class="qh"><span class="qn">${i+1}</span><span class="qt">${q[0]}</span></div>
+     <div class="qd">${q[1]}</div>
+     <div class="opts">
+       <button data-v="ok" onclick="pick(${i},'ok')">${btn1}</button>
+       <button data-v="mid" onclick="pick(${i},'mid')">${btn2}</button>
+       <button data-v="no" onclick="pick(${i},'no')">${btn3}</button>
+     </div>
+   </div>`;
+  }).join('');
+  paint();
+}
+function pick(i,v){ ans[i]=v; paint(); score(); }
+function paint(){
+  document.querySelectorAll('.q').forEach((el,i)=>{
+    el.querySelectorAll('.opts button').forEach(b=>{
+      b.classList.toggle('on', ans[i]===b.dataset.v);
+    });
+  });
+}
+function score(){
+  const n=Object.keys(ans).length;
+  const bad=Object.values(ans).filter(v=>v!=='ok').length;
+  const el=document.getElementById('sc'), msg=document.getElementById('scmsg');
+  if(n<10){ el.textContent=`${n} de 10 respondidas`; msg.textContent="Seguí marcando. El resultado aparece cuando estén las diez."; document.getElementById('sendfields').style.display='none'; return; }
+  el.textContent=`${10-bad} de 10 limpias, ${bad} con problema`;
+  document.getElementById('sendfields').style.display='flex';
+  if(bad===0) msg.textContent="El documento pasa la prueba. Vale la pena repetirla con alguien que no haya visto nunca este procedimiento.";
+  else if(bad<=2) msg.textContent=`${bad} punto${bad>1?'s':''} para corregir antes de publicar. Son correcciones de redacción, no rediseño del pliego.`;
+  else if(bad<=5) msg.textContent=`${bad} puntos con problema. Conviene revisar de dónde vienen: si salen del pliego tipo o del pliego general, la corrección se hace una vez y sirve para todos los procedimientos.`;
+  else msg.textContent=`${bad} puntos con problema sobre 10. El documento no está en condiciones de ser leído sin ayuda externa, ni por una persona ni por un sistema. Corregir ahora sale gratis; después cuesta una circular.`;
+}
+function copyResult(){
+  const n=Object.keys(ans).length;
+  if(n<10){ toast("Faltan respuestas"); return; }
+  let t="PRUEBA DE LAS DIEZ PREGUNTAS\nProcedimiento: ______  Fecha: ______  Respondió: ______\n\n";
+  QS.forEach((q,i)=>{ t+=`${i+1}. ${q[0]}: ${LBL[ans[i]]}\n`; });
+  const bad=Object.values(ans).filter(v=>v!=='ok').length;
+  t+=`\nResultado: ${10-bad} de 10 limpias, ${bad} con corrección pendiente.\n`;
+  t+="\nFuente: Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Zenodo. https://doi.org/10.5281/zenodo.21970374";
+  cp(t,"Resultado copiado, listo para pegar en el expediente");
+}
+async function sendResult(){
+  const n=Object.keys(ans).length;
+  if(n<10){ toast("Faltan respuestas"); return; }
+  const btn=document.getElementById('sendBtn');
+  if(btn.dataset.sent==='1'){ toast("Ya lo enviaste. ¡Gracias!"); return; }
+  const bad=Object.values(ans).filter(v=>v!=='ok').length;
+  const payload={
+    respuestas:QS.map((q,i)=>({item:q[0],valor:LBL[ans[i]]})),
+    limpias:10-bad,
+    con_problema:bad,
+    jurisdiccion:document.getElementById('fJuris').value||'',
+    comentario:document.getElementById('fComent').value||'',
+    hp:document.getElementById('fHP').value||'',
+    pagina:location.href
+  };
+  btn.disabled=true; const prevLbl=btn.textContent; btn.textContent="Enviando…";
+  try{
+    const r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(!r.ok) throw new Error('bad status');
+    btn.dataset.sent='1'; btn.textContent="Enviado. ¡Gracias!";
+    toast("Resultado guardado. ¡Gracias por responder!");
+  }catch(e){
+    btn.disabled=false; btn.textContent=prevLbl;
+    toast("No se pudo enviar. Probá de nuevo en un momento.");
+  }
+}
+function copyCite(){
+  cp("Atencio, J. M. (2026). Nadie leia los pliegos. Ahora los lee una maquina. Calidad documental en la contratacion publica frente a los modelos generativos de lenguaje. Zenodo. https://doi.org/10.5281/zenodo.21970374","Cita copiada");
+}
+function cp(t,m){
+  if(navigator.clipboard){navigator.clipboard.writeText(t).then(()=>toast(m),()=>fb(t,m));}else fb(t,m);
+}
+function fb(t,m){
+  const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();
+  try{document.execCommand('copy');toast(m);}catch(e){toast("No se pudo copiar");}
+  document.body.removeChild(a);
+}
+function resetTest(){ ans={}; paint(); document.getElementById('sc').textContent="Sin responder todavía";
+  document.getElementById('scmsg').textContent="Cada marca fuera de «aparece y es clara» señala una corrección pendiente en el documento, no un error de quien respondió. Corregir antes de publicar sale gratis.";
+  document.getElementById('sendfields').style.display='none';
+  document.getElementById('fJuris').value=''; document.getElementById('fComent').value=''; document.getElementById('fHP').value='';
+  const btn=document.getElementById('sendBtn'); btn.disabled=false; btn.textContent="Enviar resultado"; delete btn.dataset.sent;
+}
+let tt;
+function toast(m){ const e=document.getElementById('toast'); e.textContent=m; e.classList.add('show'); clearTimeout(tt); tt=setTimeout(()=>e.classList.remove('show'),2200); }
+addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  document.getElementById('bar').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+},{passive:true});
+render();
+</script>
+</body>
+</html>
